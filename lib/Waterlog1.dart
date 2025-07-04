@@ -24,16 +24,14 @@ class Waterlog1 extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: null,
-              height: null,
+
               child: Row(
                 spacing: 10,
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    width: null,
-                    height: null,
+
                     child: Icon(
                       Icons.water_drop,
                       color: Color(0xff25abe4),
@@ -50,16 +48,14 @@ class Waterlog1 extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: null,
-                          height: null,
+
                           child: Text(
                             '500 ml',
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                         ),
                         SizedBox(
-                          width: null,
-                          height: null,
+
                           child: Text(
                             '11:00',
                             style: Theme.of(context).textTheme.labelSmall,

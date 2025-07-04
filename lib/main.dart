@@ -6,7 +6,7 @@ import 'package:waterly/CurrentMl.dart';
 import 'package:waterly/BasicCards1.dart';
 import 'package:waterly/screens/history.dart';
 import 'globals/AppState.dart';
-
+import 'package:waterly/screens/settings.dart';
 
 
 late final SharedPreferences sharedPrefs;
@@ -41,6 +41,8 @@ class MyApp extends StatelessWidget {
         routes: {
         'HomePage': (context) => const HomePage(),
         'BasicCards1': (context) => const BasicCards1(),
+          'settings': (context) => const Settings(),
+          'history': (context) => const History(),
         },
         ),
        ),

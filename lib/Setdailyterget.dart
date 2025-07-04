@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 
+class SetDailyTarget extends StatefulWidget {
+  const SetDailyTarget({super.key});
 
+  @override
+  State<SetDailyTarget> createState() => _SetDailyTargetState();
+}
 
-class Setdailyterget extends StatelessWidget {
-
-  const Setdailyterget({super.key});
+class _SetDailyTargetState extends State<SetDailyTarget> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'حدد الهدف اليومي ',
+        'حدد الهدف اليومي',
         style: Theme.of(context).textTheme.labelLarge,
         textAlign: TextAlign.start,
       ),
       content: TextFormField(
+        controller: _controller,
         decoration: InputDecoration(
           labelText: 'هدفك اليومي',
           labelStyle: Theme.of(context).textTheme.labelMedium,
@@ -32,28 +37,29 @@ class Setdailyterget extends StatelessWidget {
           ),
         ),
         style: Theme.of(context).textTheme.labelMedium,
+        keyboardType: TextInputType.number,
       ),
       backgroundColor: const Color(0xffe1f6ff),
       actions: [
         ElevatedButton(
-          onPressed: () {},
-          onLongPress: null,
-          style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll<Color?>(
-                Theme.of(context).colorScheme.onPrimary),
-            foregroundColor: const WidgetStatePropertyAll<Color?>(null),
-            shadowColor: const WidgetStatePropertyAll<Color?>(null),
-            elevation: const WidgetStatePropertyAll<double?>(null),
-            side: const WidgetStatePropertyAll<BorderSide?>(null),
-            shape: const WidgetStatePropertyAll<RoundedRectangleBorder?>(null),
-          ),
+          onPressed: () {
+            final input = _controller.text.trim();
+            final int? value = int.tryParse(input);
+
+            if (value != null && value > 0) {
+              Navigator.pop(context, value); // ترجع القيمة للصفحة اللي فتحت الديالوج
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("أدخل قيمة صحيحة")),
+              );
+            }
+          },
           child: Text(
             'تأكيد',
             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           ),
         )
       ],
-      iconColor: const Color(0xffffffff),
     );
   }
 }

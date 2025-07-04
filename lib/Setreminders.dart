@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 
-class Setreminders extends StatelessWidget {
-  const Setreminders({super.key});
+class SetReminders extends StatefulWidget {
+  const SetReminders({super.key});
+
+  @override
+  State<SetReminders> createState() => _SetRemindersState();
+}
+
+class _SetRemindersState extends State<SetReminders> {
+  String selectedInterval = 'كل ساعتين';
+
+  final List<String> reminderOptions = [
+    'كل ساعة',
+    'كل ساعتين',
+    'كل 3 ساعات',
+    'كل 4 ساعات',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -10,47 +24,62 @@ class Setreminders extends StatelessWidget {
         'ضبط التّنبيهات',
         style: Theme.of(context).textTheme.labelLarge,
       ),
+      backgroundColor: const Color(0xffe1f6ff),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButtonFormField<String>(
+            value: selectedInterval,
+            items: reminderOptions
+                .map(
+                  (option) => DropdownMenuItem<String>(
+                value: option,
+                child: Text(option),
+              ),
+            )
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedInterval = value!;
+              });
+            },
+            decoration: InputDecoration(
+              fillColor: Theme.of(context).colorScheme.onPrimary,
+              filled: true,
+              prefixIcon: const Icon(
+                Icons.notifications_rounded,
+                color: Color(0xfff4c73d),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'اختر الوقت الذي تحب أن يصلك فيه تذكير بشرب الماء.',
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+        ],
+      ),
       actions: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context, selectedInterval);
+          },
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll<Color?>(
-                Theme.of(context).colorScheme.onPrimary),
-            foregroundColor: const WidgetStatePropertyAll<Color?>(null),
-            shadowColor: WidgetStatePropertyAll<Color?>(
-                Theme.of(context).colorScheme.onSecondary),
-            elevation: const WidgetStatePropertyAll<double?>(2),
-            side: const WidgetStatePropertyAll<BorderSide?>(null),
-            shape: const WidgetStatePropertyAll<RoundedRectangleBorder?>(null),
+              Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
           child: Text(
             'تأكيد',
             style: Theme.of(context).textTheme.labelLarge,
           ),
-        )
-      ],
-      backgroundColor: const Color(0xffe1f6ff),
-      content: DropdownButtonFormField<String>(
-        items: [
-          const DropdownMenuItem<String>(
-            value: 'first',
-            child: Text(
-              'first',
-            ),
-          )
-        ],
-        value: 'first',
-        onChanged: (value) {},
-        decoration: InputDecoration(
-          fillColor: Theme.of(context).colorScheme.onPrimary,
-          filled: true,
-          prefixIcon: const Icon(
-            Icons.notifications_rounded,
-            color: Color(0xfff4c73d),
-          ),
         ),
-        borderRadius: BorderRadius.circular(18),
-      ),
+      ],
     );
   }
 }
