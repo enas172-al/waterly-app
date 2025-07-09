@@ -6,11 +6,11 @@ class Waterlog1 extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const Waterlog1({
-    Key? key,
+    super.key,
     required this.amount,
     required this.time,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

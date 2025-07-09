@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:waterly/setdailyterget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-
-import '../Setreminders.dart';
 import '../globals/goal_provider.dart';
 
 class Settings extends StatefulWidget {
@@ -14,9 +12,8 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  int goalMl = 2000; //  القيمة المبدئية للهدف اليومي (قابلة للتعديل من الديالوج)
-  String reminderTime = 'كل ساعتين'; //  القيمة المبدئية لوقت التذكير
-
+  int goalMl = 2000; // القيمة المبدئية للهدف اليومي
+  String reminderTime = 'كل ساعتين'; // القيمة المبدئية للتذكير
   @override
   void initState() {
     super.initState();
@@ -33,7 +30,23 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  //  فتح نافذة تحديد الهدف اليومي
+  void _openRemindersDialog() async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => ReminderDialog(selected: reminderTime),
+    );
+    if (result != null) {
+      setState(() {
+        reminderTime = result;
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('reminder_time', result);
+    }
+  }
+
+  // Removed duplicate initState and _loadPrefs methods
+  // The original initState and _loadPrefs methods are kept above.
+
   void _openTargetDialog() async {
     final result = await showDialog(
       context: context,
@@ -45,22 +58,6 @@ class _SettingsState extends State<Settings> {
       setState(() {
         goalMl = result;
       });
-    }
-  }
-
-  ///  فتح نافذة ضبط التذكير
-  void _openRemindersDialog() async {
-    final result = await showDialog(
-      context: context,
-      builder: (context) => const SetReminders(),
-    );
-
-    if (result != null && result is String) {
-      setState(() {
-        reminderTime = result;
-      });
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('reminder_time', result);
     }
   }
 
@@ -110,7 +107,7 @@ class _SettingsState extends State<Settings> {
 
         const SizedBox(height: 13),
 
-        ///  كرت التذكيرات
+        ///  كرت التذكير (بدون إشعارات)
         GestureDetector(
           onTap: _openRemindersDialog,
           child: SizedBox(
@@ -128,10 +125,10 @@ class _SettingsState extends State<Settings> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.notifications_rounded, color: Color(0xfff9d91d)),
+                        const Icon(Icons.alarm, color: Color(0xfff9d91d)),
                         const SizedBox(width: 8),
                         Text(
-                          'تنبيهات',
+                          'تذكير',
                           style: Theme.of(context).textTheme.labelLarge,
                         ),
                       ],
@@ -164,3 +161,44 @@ class _SettingsState extends State<Settings> {
     );
   }
 }
+
+/// Dialog for selecting reminder interval (no notifications, just saves value)
+class ReminderDialog extends StatelessWidget {
+  final String selected;
+  const ReminderDialog({required this.selected, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      'كل ساعة',
+      'كل ساعتين',
+      'كل 3 ساعات',
+      'كل 4 ساعات',
+      'لا أريد تذكير',
+    ];
+    return AlertDialog(
+      title: const Text('اختر فترة التذكير'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: options.length,
+          itemBuilder: (context, i) => RadioListTile<String>(
+            value: options[i],
+            groupValue: selected,
+            title: Text(options[i]),
+            onChanged: (val) => Navigator.of(context).pop(val),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(selected),
+          child: const Text('إلغاء'),
+        ),
+      ],
+    );
+  }
+}
+  
+
