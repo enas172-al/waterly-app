@@ -4,6 +4,10 @@ import 'package:waterly/addwater.dart';
 import 'package:arc_progress_bar_new/arc_progress_bar_new.dart';
 import '../Add.dart';
 import '../empty.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../globals/goal_provider.dart';
+import 'dart:convert';
 
 class MainContent extends StatefulWidget {
   const MainContent({super.key});
@@ -13,18 +17,74 @@ class MainContent extends StatefulWidget {
 }
 
 class _MainContentState extends State<MainContent> {
+  // إضافة سجل الماء في SharedPreferences
+  Future<void> _saveLog(int amount) async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final todayKey = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final logsString = prefs.getString('water_logs');
+    Map<String, dynamic> logsMap = logsString != null ? jsonDecode(logsString) : {};
+    List todayList = logsMap[todayKey] ?? [];
+    todayList.add({'amount': amount, 'time': now.toIso8601String()});
+    logsMap[todayKey] = todayList;
+    await prefs.setString('water_logs', jsonEncode(logsMap));
+  }
   int currentMl = 0;
-  final int goalMl = 2000;
 
-  void addWater(int amount) {
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentMl();
+  }
+
+  Future<void> _loadCurrentMl() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    final dateKey = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+    final historyString = prefs.getString('water_history');
+    if (historyString != null) {
+      final Map<String, dynamic> history = jsonDecode(historyString);
+      if (history[dateKey] != null) {
+        setState(() {
+          currentMl = history[dateKey];
+        });
+      }
+    }
+  }
+
+  void addWater(int amount) async {
+    final goalMl = Provider.of<GoalProvider>(context, listen: false).goalMl;
     setState(() {
       currentMl += amount;
       if (currentMl > goalMl) currentMl = goalMl;
     });
+    await _saveDailyWater(amount);
+    await _saveLog(amount); // حفظ السجل اليومي
+  }
+
+  Future<void> _saveDailyWater(int addedAmount) async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    final key = 'water_history';
+    Map<String, dynamic> history = {};
+    final historyString = prefs.getString(key);
+    if (historyString != null) {
+      history = jsonDecode(historyString);
+    }
+    final dateKey = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+    int previous = 0;
+    if (history[dateKey] != null) {
+      previous = history[dateKey];
+    }
+    history[dateKey] = previous + addedAmount;
+    await prefs.setString(key, jsonEncode(history));
+    // تحديث السجل تلقائياً
+   // History.notifyHistoryChanged();
   }
 
   @override
   Widget build(BuildContext context) {
+    final goalMl = Provider.of<GoalProvider>(context).goalMl;
     return SingleChildScrollView(
       child: Column(
         children: [

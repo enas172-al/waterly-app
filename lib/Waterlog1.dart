@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
 class Waterlog1 extends StatelessWidget {
+  final int amount;
+  final String time;
+  final VoidCallback? onDelete;
 
-  const Waterlog1({super.key});
+  const Waterlog1({
+    Key? key,
+    required this.amount,
+    required this.time,
+    this.onDelete,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,66 +27,56 @@ class Waterlog1 extends StatelessWidget {
           right: 10,
         ),
         child: Row(
-          spacing: 67.384765625,
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-
-              child: Row(
-                spacing: 10,
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-
-                    child: Icon(
-                      Icons.water_drop,
-                      color: Color(0xff25abe4),
-                      size: 26,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.water_drop,
+                  color: Color(0xff25abe4),
+                  size: 26,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$amount ml',
+                      style: Theme.of(context).textTheme.labelMedium,
                     ),
-                  ),
-                  SizedBox(
-                    width: 39.615234375,
-                    height: null,
-                    child: Column(
-                      spacing: 0,
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-
-                          child: Text(
-                            '500 ml',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        ),
-                        SizedBox(
-
-                          child: Text(
-                            '11:00',
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        )
-                      ],
+                    Text(
+                      _formatTime(time),
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
-                  )
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(
-              width: null,
-              height: null,
-              child: Icon(
+            IconButton(
+              icon: const Icon(
                 Icons.delete_outlined,
                 color: Color(0x51000000),
                 size: 20,
               ),
-            )
+              onPressed: onDelete,
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatTime(String timeString) {
+    try {
+      final dt = DateTime.parse(timeString);
+      final hour = dt.hour.toString().padLeft(2, '0');
+      final min = dt.minute.toString().padLeft(2, '0');
+      return '$hour:$min';
+    } catch (_) {
+      return timeString;
+    }
   }
 }

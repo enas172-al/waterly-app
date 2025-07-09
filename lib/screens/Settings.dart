@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:waterly/setdailyterget.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 import '../Setreminders.dart';
+import '../globals/goal_provider.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -15,6 +17,22 @@ class _SettingsState extends State<Settings> {
   int goalMl = 2000; //  القيمة المبدئية للهدف اليومي (قابلة للتعديل من الديالوج)
   String reminderTime = 'كل ساعتين'; //  القيمة المبدئية لوقت التذكير
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedGoal = prefs.getInt('daily_goal_ml');
+    final storedReminder = prefs.getString('reminder_time');
+    setState(() {
+      if (storedGoal != null) goalMl = storedGoal;
+      if (storedReminder != null) reminderTime = storedReminder;
+    });
+  }
+
   //  فتح نافذة تحديد الهدف اليومي
   void _openTargetDialog() async {
     final result = await showDialog(
@@ -23,6 +41,7 @@ class _SettingsState extends State<Settings> {
     );
 
     if (result != null && result is int) {
+      Provider.of<GoalProvider>(context, listen: false).setGoal(result);
       setState(() {
         goalMl = result;
       });
@@ -40,11 +59,14 @@ class _SettingsState extends State<Settings> {
       setState(() {
         reminderTime = result;
       });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('reminder_time', result);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final goalProvider = Provider.of<GoalProvider>(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -76,7 +98,7 @@ class _SettingsState extends State<Settings> {
                       ],
                     ),
                     Text(
-                      '$goalMl ml',
+                      '${goalProvider.goalMl} ml',
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ],
